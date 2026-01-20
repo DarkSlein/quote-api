@@ -76,16 +76,16 @@ class Quote:
     source: Optional[str] = None
     language: Language = Language("ru")
     rating: Rating = field(default_factory=Rating.zero)
-    created_at: datetime = field(default_factory=datetime.utcnow)
-    updated_at: datetime = field(default_factory=datetime.utcnow)
+    created_at: datetime = field(default_factory=datetime.now(datetime.timezone.utc))
+    updated_at: datetime = field(default_factory=datetime.now(datetime.timezone.utc))
 
     def __post_init__(self) -> None:
         self.validate()
 
     def rate(self, increment: int = 1) -> None:
         self.rating = Rating(self.rating.value + increment)
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(datetime.timezone.utc)
 
     def update_text(self, new_text: QuoteText) -> None:
         self.text = new_text
-        self.updated_at = datetime.utcnow()
+        self.updated_at = datetime.now(datetime.timezone.utc)

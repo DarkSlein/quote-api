@@ -9,11 +9,11 @@ from src.presentation.api.v1 import quotes, admin
 from src.application.background_tasks.quote_miner import QuoteMiner
 from src.shared.config import settings
 from src.infrastructure.database.session import database
-from src.presentation.api.middleware import (
-    LoggingMiddleware,
-    ExceptionMiddleware,
-    RateLimitMiddleware
-)
+#from src.presentation.api.middleware import (
+#    LoggingMiddleware,
+#    ExceptionMiddleware,
+#    RateLimitMiddleware
+#)
 
 logger = structlog.get_logger()
 
@@ -66,9 +66,9 @@ def create_application() -> FastAPI:
         allow_headers=["*"],
     )
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
-    app.add_middleware(LoggingMiddleware)
-    app.add_middleware(ExceptionMiddleware)
-    app.add_middleware(RateLimitMiddleware)
+    #app.add_middleware(LoggingMiddleware)
+    #app.add_middleware(ExceptionMiddleware)
+    #app.add_middleware(RateLimitMiddleware)
     
     # Роутеры
     app.include_router(quotes.router, prefix=settings.API_V1_STR)
