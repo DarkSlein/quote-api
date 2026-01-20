@@ -3,7 +3,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query, HTTPException, status
 from pydantic import BaseModel, Field
 
-from src.domain.entities import Quote, QuoteId
+from src.domain.entities.quote import Quote, QuoteId
 from src.application.use_cases.quotes import (
     GetQuoteUseCase,
     GetRandomQuoteUseCase,
