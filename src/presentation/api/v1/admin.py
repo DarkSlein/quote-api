@@ -1,6 +1,5 @@
-from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status
-from typing import Dict, Any
+from datetime import datetime, timezone
+from fastapi import APIRouter, HTTPException, status
 
 from src.application.background_tasks.quote_miner import QuoteMiner
 
@@ -30,5 +29,5 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "quote-api",
-        "timestamp": datetime.now(datetime.timezone.utc).isoformat()
+        "timestamp": datetime.now(timezone.utc).isoformat()
     }

@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID, uuid4
 
@@ -27,7 +27,7 @@ class Author:
     death_year: Optional[int] = None
     bio: Optional[str] = None
     created_at: datetime = \
-      field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc))
+      field(default_factory=lambda: datetime.datetime.now(timezone.utc))
 
     def is_alive(self) -> bool:
         return self.death_year is None
@@ -76,16 +76,16 @@ class Quote:
     id: QuoteId = field(default_factory=QuoteId.generate)
     language: Language = field(default_factory=lambda: Language("ru"))
     rating: Rating = field(default_factory=Rating.zero)
-    created_at: datetime = field(default_factory=datetime.now(datetime.timezone.utc))
-    updated_at: datetime = field(default_factory=datetime.now(datetime.timezone.utc))
+    created_at: datetime = field(default_factory=datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=datetime.now(timezone.utc))
 
     def __post_init__(self) -> None:
         self.validate()
 
     def rate(self, increment: int = 1) -> None:
         self.rating = Rating(self.rating.value + increment)
-        self.updated_at = datetime.now(datetime.timezone.utc)
+        self.updated_at = datetime.now(timezone.utc)
 
     def update_text(self, new_text: QuoteText) -> None:
         self.text = new_text
-        self.updated_at = datetime.now(datetime.timezone.utc)
+        self.updated_at = datetime.now(timezone.utc)
