@@ -1,4 +1,4 @@
-from src.main import create_app, socketio, Config
+from main import create_app, socketio, Config
 
 app = create_app()
 

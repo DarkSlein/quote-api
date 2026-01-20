@@ -1,13 +1,13 @@
 from typing import Optional, List, Tuple
 
-from src.domain.entities import Quote, Author, QuoteId
-from src.domain.repositories import UnitOfWork
-from src.domain.value_objects import QuoteText, Language, UpdateResult, QuoteSource
-from src.domain.exceptions import (
+from application.services.external_quote_service import ExternalQuoteService
+from domain.entities import Quote, Author, QuoteId
+from domain.repositories import UnitOfWork
+from domain.value_objects import QuoteText, Language, UpdateResult, QuoteSource
+from domain.exceptions import (
     QuoteNotFoundException,
     QuoteAlreadyExistsException
 )
-from src.application.services import ExternalQuoteService
 
 
 class GetQuoteUseCase:

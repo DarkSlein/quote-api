@@ -3,16 +3,16 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query, HTTPException, status
 from pydantic import BaseModel, Field
 
-from src.domain.entities import Quote, QuoteId
-from src.application.use_cases.quotes import (
+from domain.entities import Quote, QuoteId
+from application.use_cases.quotes import (
     GetQuoteUseCase,
     GetRandomQuoteUseCase,
     SearchQuotesUseCase,
     CreateQuoteUseCase,
     RateQuoteUseCase
 )
-from src.infrastructure.unit_of_work import SqlAlchemyUnitOfWork
-from src.presentation.api.dependencies import get_uow
+from infrastructure.unit_of_work import SqlAlchemyUnitOfWork
+from presentation.api.dependencies import get_uow
 
 router = APIRouter(prefix="/quotes", tags=["quotes"])
 

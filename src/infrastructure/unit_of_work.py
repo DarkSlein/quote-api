@@ -1,11 +1,11 @@
 from typing import Any, Optional
 
-from src.domain.repositories import UnitOfWork, QuoteRepository, AuthorRepository
-from src.infrastructure.repositories.sqlalchemy_repositories import (
+from domain.repositories import UnitOfWork, QuoteRepository, AuthorRepository
+from infrastructure.repositories.sqlalchemy_repositories import (
     SqlAlchemyQuoteRepository,
     SqlAlchemyAuthorRepository
 )
-from src.infrastructure.database.session import database
+from infrastructure.database.session import database
 
 
 class SqlAlchemyUnitOfWork(UnitOfWork):

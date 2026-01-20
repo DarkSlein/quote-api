@@ -5,11 +5,11 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import structlog
 import asyncio
 
-from src.presentation.api.v1 import quotes, admin
-from src.application.background_tasks.quote_miner import QuoteMiner
-from src.shared.config import settings
-from src.infrastructure.database.session import database
-#from src.presentation.api.middleware import (
+from presentation.api.v1 import quotes, admin
+from application.background_tasks.quote_miner import QuoteMiner
+from shared.config import settings
+from infrastructure.database.session import database
+#from presentation.api.middleware import (
 #    LoggingMiddleware,
 #    ExceptionMiddleware,
 #    RateLimitMiddleware

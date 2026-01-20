@@ -2,8 +2,8 @@ import aiohttp
 from typing import List, Optional
 from asyncio_throttle import Throttler
 
-from src.domain.entities import Quote, Author
-from src.domain.value_objects import QuoteText, Language, QuoteSource
+from domain.entities import Quote, Author
+from domain.value_objects import QuoteText, Language, QuoteSource
 
 
 class ExternalQuoteService:

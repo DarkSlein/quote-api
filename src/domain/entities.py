@@ -3,8 +3,8 @@ from datetime import datetime, timezone
 from typing import Optional
 from uuid import UUID, uuid4
 
-from src.domain.value_objects import QuoteText, Language, Rating
-from src.domain.exceptions import DomainException
+from domain.value_objects import QuoteText, Language, Rating
+from domain.exceptions import DomainException
 
 
 @dataclass(frozen=True, eq=True)

@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from fastapi import APIRouter, HTTPException, status
 
-from src.application.background_tasks.quote_miner import QuoteMiner
+from application.background_tasks.quote_miner import QuoteMiner
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 

@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Optional, List, Tuple
 from uuid import UUID
 
-from src.domain.entities import Quote, Author, QuoteId
-from src.domain.value_objects import Language
+from domain.entities import Quote, Author, QuoteId
+from domain.value_objects import Language
 
 
 class QuoteRepository(ABC):
