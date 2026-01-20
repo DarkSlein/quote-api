@@ -21,8 +21,8 @@ class QuoteId:
 
 @dataclass
 class Author:
-    id: UUID = field(default_factory=uuid4)
     name: str
+    id: UUID = field(default_factory=uuid4)
     birth_year: Optional[int] = None
     death_year: Optional[int] = None
     bio: Optional[str] = None
@@ -68,13 +68,13 @@ class Era:
 
 @dataclass
 class Quote:
-    id: QuoteId = field(default_factory=QuoteId.generate)
     text: QuoteText
     author: Optional[Author] = None
     category: Optional[Category] = None
     era: Optional[Era] = None
     source: Optional[str] = None
-    language: Language = Language("ru")
+    id: QuoteId = field(default_factory=QuoteId.generate)
+    language: Language = field(default_factory=lambda: Language("ru"))
     rating: Rating = field(default_factory=Rating.zero)
     created_at: datetime = field(default_factory=datetime.now(datetime.timezone.utc))
     updated_at: datetime = field(default_factory=datetime.now(datetime.timezone.utc))
