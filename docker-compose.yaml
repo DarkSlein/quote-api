@@ -1,0 +1,32 @@
+version: '3.6'
+services:
+  talkpal-backend:
+    container_name: talkpal-backend
+    ports:
+      - 5004:5000
+    environment:
+      - APP_HOST=${APP_HOST}
+      - DB_NAME=${DB_NAME}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - MONGO_URI=${MONGO_URI}
+    image: talkpal-backend
+    build: .
+    volumes:
+      - "./src:/app/src"
+  talkpal-db:
+    image: mongo:4.2.8
+    container_name: mongo
+    ports:
+      - 5005:27017
+    environment:
+      - MONGO_INITDB_DATABASE=test
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin
+    volumes:
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:ro
+      - mongodb:/data/db
+      - mongoconfig:/data/configdb
+    
+volumes:
+  mongodb:
+  mongoconfig:
