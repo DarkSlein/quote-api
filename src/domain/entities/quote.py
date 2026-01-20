@@ -42,8 +42,8 @@ class Author:
 
 @dataclass
 class Category:
-    id: UUID = field(default_factory=uuid4)
     name: str
+    id: UUID = field(default_factory=uuid4)
     description: Optional[str] = None
 
     def validate(self) -> None:
