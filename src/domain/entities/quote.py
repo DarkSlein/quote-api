@@ -53,8 +53,8 @@ class Category:
 
 @dataclass
 class Era:
-    id: UUID = field(default_factory=uuid4)
     name: str
+    id: UUID = field(default_factory=uuid4)
     start_year: Optional[int] = None
     end_year: Optional[int] = None
 
