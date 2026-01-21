@@ -3,7 +3,7 @@ from sqlalchemy.pool import NullPool
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from shared.config import settings
+from src.shared.config import settings
 
 
 class Database:

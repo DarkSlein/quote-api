@@ -6,7 +6,7 @@ import structlog
 import asyncio
 
 from src.application.background_tasks.quote_miner import QuoteMiner
-from shared.config import settings
+from src.shared.config import settings
 from src.infrastructure.database.session import database
 import src.presentation.api.v1.quotes as quotes
 import src.presentation.api.v1.admin as admin
