@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from sqlalchemy import text
 import structlog
 import asyncio
 
@@ -28,7 +29,7 @@ async def lifespan(app: FastAPI):
     # Проверяем подключение к БД
     try:
         async with database.get_session() as session:
-            await session.execute("SELECT 1")
+            await session.execute(text("SELECT 1"))
         logger.info("Database connection successful")
     except Exception as e:
         logger.error("Database connection failed", error=str(e))

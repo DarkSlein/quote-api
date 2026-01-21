@@ -8,8 +8,10 @@ from src.shared.config import settings
 
 class Database:
     def __init__(self):
+        db_url = settings.DATABASE_URL.replace("postgresql://", "postgresql+asyncpg://")
+        
         self.engine = create_async_engine(
-            settings.DATABASE_URL,
+            db_url,
             echo=settings.SQL_ECHO,
             poolclass=NullPool if settings.TESTING else None,
             pool_size=settings.DB_POOL_SIZE,
