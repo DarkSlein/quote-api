@@ -5,9 +5,9 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import structlog
 import asyncio
 
-from application.background_tasks.quote_miner import QuoteMiner
+from src.application.background_tasks.quote_miner import QuoteMiner
 from shared.config import settings
-from infrastructure.database.session import database
+from src.infrastructure.database.session import database
 import src.presentation.api.v1.quotes as quotes
 import src.presentation.api.v1.admin as admin
 #from presentation.api.middleware import (

@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
 
-from infrastructure.unit_of_work import SqlAlchemyUnitOfWork
+from src.infrastructure.unit_of_work import SqlAlchemyUnitOfWork
 
 
 async def get_uow() -> AsyncGenerator[SqlAlchemyUnitOfWork, None]:

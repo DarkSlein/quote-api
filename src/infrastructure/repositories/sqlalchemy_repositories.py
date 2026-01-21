@@ -5,12 +5,12 @@ from uuid import UUID
 from sqlalchemy import select, func, or_, and_, desc, asc
 from sqlalchemy.orm import selectinload, joinedload
 
-from domain.entities import (
+from src.domain.entities import (
     Quote, Author, Category, Era, QuoteId
 )
-from domain.value_objects import QuoteText, Language, Rating
-from domain.repositories import QuoteRepository, AuthorRepository
-from infrastructure.database.models import (
+from src.domain.value_objects import QuoteText, Language, Rating
+from src.domain.repositories import QuoteRepository, AuthorRepository
+from src.infrastructure.database.models import (
     QuoteModel, AuthorModel, CategoryModel, EraModel
 )
 

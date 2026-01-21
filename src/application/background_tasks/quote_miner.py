@@ -1,10 +1,10 @@
 import asyncio
 import structlog
 
-from domain.value_objects import QuoteSource
-from application.use_cases.quotes import UpdateQuotesFromExternalSourceUseCase
-from infrastructure.unit_of_work import SqlAlchemyUnitOfWork
-from application.services.external_quote_service import ExternalQuoteService
+from src.domain.value_objects import QuoteSource
+from src.application.use_cases.quotes import UpdateQuotesFromExternalSourceUseCase
+from src.infrastructure.unit_of_work import SqlAlchemyUnitOfWork
+from src.application.services.external_quote_service import ExternalQuoteService
 
 logger = structlog.get_logger()
 

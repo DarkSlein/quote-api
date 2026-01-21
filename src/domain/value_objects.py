@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import Enum
 
-from domain.exceptions import DomainException
+from src.domain.exceptions import DomainException
 
 
 @dataclass(frozen=True)
