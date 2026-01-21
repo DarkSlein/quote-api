@@ -1,8 +1,11 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+import json
+import traceback
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.responses import JSONResponse
 from sqlalchemy import text
 import structlog
 import asyncio
@@ -73,6 +76,48 @@ def create_application() -> FastAPI:
         lifespan=lifespan,
     )
 
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        # Логируем ошибку
+        error_traceback = traceback.format_exc()
+        print(f"\n{'='*60}")
+        print(f"ERROR: {type(exc).__name__}")
+        print(f"Message: {exc}")
+        print(f"Path: {request.url.path}")
+        print(f"Method: {request.method}")
+        print(f"Traceback:\n{error_traceback}")
+        print(f"{'='*60}\n")
+        
+        status_code = 500
+        
+        # Определяем статус код
+        if isinstance(exc, HTTPException):
+            status_code = exc.status_code
+        elif isinstance(exc, RequestValidationError):
+            status_code = 422
+        
+        # Формируем ответ
+        response_content = {
+            "detail": str(exc),
+            "type": type(exc).__name__,
+        }
+        
+        # Добавляем debug информацию
+        if settings.DEBUG and settings.SHOW_TRACEBACK:
+            response_content.update({
+                "debug": {
+                    "traceback": error_traceback.split('\n'),
+                    "path": request.url.path,
+                    "method": request.method,
+                    "request_body": await _get_request_body(request),
+                }
+            })
+        
+        return JSONResponse(
+            status_code=status_code,
+            content=response_content
+        )
+
     app.add_exception_handler(
         RequestValidationError,
         validation_exception_handler
@@ -106,6 +151,18 @@ def create_application() -> FastAPI:
     
     return app
 
+async def _get_request_body(request: Request):
+    """Получить тело запроса для отладки"""
+    try:
+        body = await request.body()
+        if body:
+            try:
+                return json.loads(body.decode('utf-8'))
+            except:
+                return body.decode('utf-8')[:500]
+    except:
+        pass
+    return None
 
 app = create_application()
 
