@@ -6,6 +6,7 @@ annotated-types==0.7.0
 anyio==4.12.1
 async-timeout==5.0.1
 asyncio-throttle==1.0.2
+asyncpg==0.31.0
 attrs==25.4.0
 click==8.3.1
 colorama==0.4.6
