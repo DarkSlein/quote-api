@@ -77,7 +77,7 @@ def create_application() -> FastAPI:
     )
     
     # Добавляем middleware для отладки (сначала DebugExceptionMiddleware)
-    app.add_middleware(DebugExceptionMiddleware)
+    app.add_middleware(DebugExceptionMiddleware, debug=settings.DEBUG)
     
     # Middleware
     app.add_middleware(
