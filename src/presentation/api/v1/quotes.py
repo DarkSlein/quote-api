@@ -143,10 +143,31 @@ async def create_quote(
         )
         return QuoteResponse.from_domain(quote)
     except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        # Выводим полный стек-трейс в консоль
+        traceback_str = traceback.format_exc()
+        print(f"\n{'='*60}")
+        print(f"CREATE QUOTE ERROR: {type(e).__name__}: {e}")
+        print(f"REQUEST DATA: {request.dict()}")
+        print(f"TRACEBACK:\n{traceback_str}")
+        print(f"{'='*60}\n")
+        
+        # В debug режиме возвращаем полную информацию
+        if settings.DEBUG:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={
+                    "error": str(e),
+                    "type": type(e).__name__,
+                    "traceback": traceback_str.split('\n'),
+                    "request_data": request.dict()
+                }
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=str(e)
+            )
+
 
 
 @router.post("/{quote_id}/rate", response_model=QuoteResponse)
