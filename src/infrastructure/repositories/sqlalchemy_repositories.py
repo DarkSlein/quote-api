@@ -45,6 +45,14 @@ class SqlAlchemyQuoteRepository(QuoteRepository):
 
     def _to_model(self, quote: Quote) -> QuoteModel:
         """Преобразование доменной сущности в модель SQLAlchemy"""
+        def _ensure_naive(dt: Optional[datetime]) -> Optional[datetime]:
+            """Преобразует aware datetime в naive, если необходимо"""
+            if dt is None:
+                return None
+            if dt.tzinfo is not None:
+                return dt.replace(tzinfo=None)
+            return dt
+        
         return QuoteModel(
             id=quote.id.value,
             text=str(quote.text),
@@ -52,8 +60,8 @@ class SqlAlchemyQuoteRepository(QuoteRepository):
             source=quote.source,
             language=str(quote.language),
             rating=quote.rating.value,
-            created_at=quote.created_at,
-            updated_at=quote.updated_at
+            created_at=_ensure_naive(quote.created_at),
+            updated_at=_ensure_naive(quote.updated_at),
         )
 
     async def get_by_id(self, quote_id: QuoteId) -> Optional[Quote]:
@@ -256,12 +264,19 @@ class SqlAlchemyAuthorRepository(AuthorRepository):
         return None
 
     async def save(self, author: Author) -> None:
+        def _ensure_naive(dt: Optional[datetime]) -> Optional[datetime]:
+            if dt is None:
+                return None
+            if dt.tzinfo is not None:
+                return dt.replace(tzinfo=None)
+            return dt
+        
         model = AuthorModel(
             id=author.id,
             name=author.name,
             birth_year=author.birth_year,
             death_year=author.death_year,
             bio=author.bio,
-            created_at=author.created_at
+            created_at=_ensure_naive(author.created_at)
         )
         self.session.add(model)
