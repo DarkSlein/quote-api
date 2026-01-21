@@ -12,7 +12,7 @@ from src.application.use_cases.quotes import (
     RateQuoteUseCase
 )
 from src.infrastructure.unit_of_work import SqlAlchemyUnitOfWork
-from presentation.api.dependencies import get_uow
+from src.presentation.api.dependencies import get_uow
 
 router = APIRouter(prefix="/quotes", tags=["quotes"])
 
