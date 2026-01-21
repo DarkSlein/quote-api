@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from sqlalchemy import (
-    Column, Integer, String, Text, DateTime, ForeignKey,
+    Column, Integer, String, Text, TIMESTAMP, ForeignKey,
     Index, UniqueConstraint, CheckConstraint
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -18,8 +18,8 @@ class AuthorModel(Base):
     birth_year = Column(Integer, nullable=True)
     death_year = Column(Integer, nullable=True)
     bio = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), 
+    created_at = Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc), 
                        onupdate=lambda: datetime.now(timezone.utc))
     
     quotes = relationship("QuoteModel", back_populates="author")
@@ -62,8 +62,8 @@ class QuoteModel(Base):
     source = Column(String(500), nullable=True)
     language = Column(String(10), default="ru")
     rating = Column(Integer, default=0)
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
+    created_at = Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc))
+    updated_at = Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc),
                        onupdate=lambda: datetime.now(timezone.utc))
     
     # Relationships
@@ -91,7 +91,7 @@ class QuoteStatsModel(Base):
     views = Column(Integer, default=0)
     shares = Column(Integer, default=0)
     likes = Column(Integer, default=0)
-    last_viewed = Column(DateTime, nullable=True)
+    last_viewed = Column(TIMESTAMP(timezone=True), nullable=True)
     
     quote = relationship("QuoteModel", back_populates="stats")
 
@@ -106,7 +106,7 @@ class UpdateLogModel(Base):
     errors = Column(Integer, default=0)
     status = Column(String(20), nullable=False)  # success, partial, failed
     error_message = Column(Text, nullable=True)
-    executed_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    executed_at = Column(TIMESTAMP(timezone=True), default=lambda: datetime.now(timezone.utc))
     duration_ms = Column(Integer, nullable=True)
     
     __table_args__ = (
