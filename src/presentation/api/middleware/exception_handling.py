@@ -67,6 +67,6 @@ class DebugExceptionMiddleware:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
                 "detail": "Internal server error",
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.now(timezone.utc).isoformat()
             }
         )
