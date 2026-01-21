@@ -76,11 +76,19 @@ class Quote:
     id: QuoteId = field(default_factory=QuoteId.generate)
     language: Language = field(default_factory=lambda: Language("ru"))
     rating: Rating = field(default_factory=Rating.zero)
-    created_at: datetime = field(default_factory=datetime.now(timezone.utc))
-    updated_at: datetime = field(default_factory=datetime.now(timezone.utc))
+    created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     def __post_init__(self) -> None:
         self.validate()
+
+    def validate(self) -> None:
+        if not self.text:
+            raise ValueError("Quote text cannot be empty")
+
+        if self.created_at and self.updated_at:
+            if self.created_at > self.updated_at:
+                raise ValueError("created_at cannot be after updated_at")
 
     def rate(self, increment: int = 1) -> None:
         self.rating = Rating(self.rating.value + increment)
