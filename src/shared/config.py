@@ -8,8 +8,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     PROJECT_NAME: str = "Quote API"
     VERSION: str = "1.0.0"
-    DEBUG: bool = os.getenv("DEBUG", "True").lower() == "true"
-    SHOW_TRACEBACK: bool = os.getenv("SHOW_TRACEBACK", "True").lower() == "true"
+    DEBUG: bool = os.getenv("DEBUG", "False").lower() == "true"
     
     # Database
     DATABASE_URL: str = os.getenv(

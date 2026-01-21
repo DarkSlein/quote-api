@@ -16,9 +16,9 @@ async def init_database():
     
     try:
         # Создаем таблицы
-        async with database.engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        print("✅ Таблицы созданы успешно")
+        #async with database.engine.begin() as conn:
+        #    await conn.run_sync(Base.metadata.create_all)
+        #print("✅ Таблицы созданы успешно")
         
         # Добавляем тестовые данные
         async with database.get_session() as session:
