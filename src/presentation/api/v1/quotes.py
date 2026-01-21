@@ -1,3 +1,4 @@
+import traceback
 from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, Query, HTTPException, status
@@ -13,6 +14,7 @@ from src.application.use_cases.quotes import (
 )
 from src.infrastructure.unit_of_work import SqlAlchemyUnitOfWork
 from src.presentation.api.dependencies import get_uow
+from src.shared.config import settings
 
 router = APIRouter(prefix="/quotes", tags=["quotes"])
 
