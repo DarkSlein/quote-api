@@ -6,10 +6,10 @@ def connect_and_query():
     conn = None
     try:
         conn = psycopg2.connect(
-            host="localhost",
-            database="your_database_name",
-            user="your_username",
-            password="your_password",
+            host="dpg-d5nv15v5r7bs73chea9g-a.frankfurt-postgres.render.com",
+            database="quotes_cyyw",
+            user="quote_user",
+            password="7C6gNcmanl4n0ra7DzvMjwieyNcuIHei",
             port=5432 # Default port for PostgreSQL
         )
         

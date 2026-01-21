@@ -27,7 +27,7 @@ class Author:
     death_year: Optional[int] = None
     bio: Optional[str] = None
     created_at: datetime = \
-      field(default_factory=lambda: datetime.datetime.now(timezone.utc))
+      field(default_factory=lambda: datetime.now(timezone.utc))
 
     def is_alive(self) -> bool:
         return self.death_year is None

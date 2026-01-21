@@ -34,7 +34,7 @@ class ExternalQuoteService:
             url = "https://ru.wikiquote.org/w/api.php"
             params = {
                 "action": "parse",
-                "page": "Заглавная_страница",
+                "page": "Афоризм",
                 "format": "json",
                 "prop": "text"
             }
@@ -43,8 +43,10 @@ class ExternalQuoteService:
                 async with self.session.get(url, params=params) as response:
                     if response.status == 200:
                         data = await response.json()
-                        # Здесь должна быть логика парсинга HTML
-                        # Для примера возвращаем пустой список
+                        # Возвращаем пустой список, так как парсинг WikiQuote сложный
+                        # В будущем можно реализовать полноценный парсинг
+                        return []
+                    else:
                         return []
             except Exception as e:
                 # Логируем ошибку и возвращаем пустой список
@@ -52,31 +54,42 @@ class ExternalQuoteService:
 
     async def _fetch_from_forismatic(self) -> List[Quote]:
         """Получение цитат с Forismatic API"""
-        async with self.throttler:
-            url = "http://api.forismatic.com/api/1.0/"
-            params = {
-                "method": "getQuote",
-                "format": "json",
-                "lang": "ru"
-            }
-            
-            try:
-                async with self.session.get(url, params=params) as response:
-                    if response.status == 200:
-                        data = await response.json()
-                        quote_text = data.get("quoteText", "")
-                        author_name = data.get("quoteAuthor", "")
-                        
-                        if quote_text and author_name:
-                            author = Author(name=author_name)
-                            quote = Quote(
-                                text=QuoteText(quote_text),
-                                author=author,
-                                language=Language("ru"),
-                                source="forismatic.com"
-                            )
-                            return [quote]
-            except Exception as e:
-                return []
+        quotes = []
         
-        return []
+        # Делаем несколько запросов для получения нескольких цитат
+        for _ in range(3):  # Получаем 3 цитаты за раз
+            async with self.throttler:
+                url = "http://api.forismatic.com/api/1.0/"
+                params = {
+                    "method": "getQuote",
+                    "format": "json",
+                    "lang": "ru",
+                    "key": "457653"  # Пример ключа
+                }
+                
+                try:
+                    async with self.session.get(url, params=params) as response:
+                        if response.status == 200:
+                            data = await response.json()
+                            quote_text = data.get("quoteText", "").strip()
+                            author_name = data.get("quoteAuthor", "").strip()
+                            
+                            if quote_text and author_name:
+                                author = Author(name=author_name)
+                                quote = Quote(
+                                    text=QuoteText(quote_text),
+                                    author=author,
+                                    language=Language("ru"),
+                                    source="forismatic.com"
+                                )
+                                quotes.append(quote)
+                except Exception as e:
+                    # Продолжаем попытки для других цитат
+                    continue
+        
+        return quotes
+
+
+# Альтернативно, отключите обновление из wikiquote в настройках:
+# В src/shared/config.py добавьте:
+# UPDATE_SOURCES = os.getenv("UPDATE_SOURCES", "forismatic")  # Только forismatic
