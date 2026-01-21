@@ -17,11 +17,6 @@ import src.presentation.api.v1.quotes as quotes
 import src.presentation.api.v1.admin as admin
 from src.presentation.api.middleware.exception_handling import DebugExceptionMiddleware
 from src.presentation.api.middleware.validation_handler import validation_exception_handler
-#from src.presentation.api.middleware import (
-#    LoggingMiddleware,
-#    ExceptionMiddleware,
-#    RateLimitMiddleware
-#)
 
 logger = structlog.get_logger()
 
@@ -75,42 +70,15 @@ def create_application() -> FastAPI:
         lifespan=lifespan,
     )
 
-    if settings.DEBUG:
-        @app.middleware("http")
-        async def debug_middleware(request: Request, call_next):
-            try:
-                response = await call_next(request)
-                return response
-            except Exception as exc:
-                traceback_str = traceback.format_exc()
-                
-                # Логируем в консоль Render
-                print(f"\n{'='*60}")
-                print(f"ERROR: {type(exc).__name__}: {exc}")
-                print(f"PATH: {request.url.path}")
-                print(f"TRACEBACK:\n{traceback_str}")
-                print(f"{'='*60}\n")
-                
-                # Возвращаем детализированную ошибку
-                return JSONResponse(
-                    status_code=500,
-                    content={
-                        "detail": str(exc),
-                        "type": type(exc).__name__,
-                        "traceback": traceback_str.split('\n') if settings.SHOW_TRACEBACK else None,
-                        "debug": True
-                    }
-                )
-
+    # Регистрируем обработчики исключений
     app.add_exception_handler(
         RequestValidationError,
         validation_exception_handler
     )
-
-    #if settings.DEBUG:
-    app.add_middleware(DebugExceptionMiddleware, debug=True)
     
-
+    # Добавляем middleware для отладки (сначала DebugExceptionMiddleware)
+    app.add_middleware(DebugExceptionMiddleware)
+    
     # Middleware
     app.add_middleware(
         CORSMiddleware,
@@ -120,9 +88,6 @@ def create_application() -> FastAPI:
         allow_headers=["*"],
     )
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
-    #app.add_middleware(LoggingMiddleware)
-    #app.add_middleware(ExceptionMiddleware)
-    #app.add_middleware(RateLimitMiddleware)
     
     # Роутеры
     app.include_router(quotes.router, prefix=settings.API_V1_STR)
