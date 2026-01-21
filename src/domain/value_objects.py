@@ -30,15 +30,18 @@ class QuoteText:
 
 @dataclass(frozen=True)
 class Language:
-    code: str
+    _code: str
 
     def __post_init__(self) -> None:
-        if len(self.code) != 2:
+        if len(self._code) != 2:
             raise DomainException("Language code must be 2 characters")
-        self.code = self.code.lower()
+        if not self._code.islower():
+            raise DomainException("Language code must be lowercase")
 
-    def __str__(self) -> str:
-        return self.code
+    @property
+    def code(self) -> str:
+        """Публичный геттер для кода языка."""
+        return self._code
 
 
 @dataclass(frozen=True)
