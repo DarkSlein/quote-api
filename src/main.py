@@ -9,6 +9,7 @@ import asyncio
 from src.application.background_tasks.quote_miner import QuoteMiner
 from src.shared.config import settings
 from src.infrastructure.database.session import database
+from src.infrastructure.database.models import Base
 import src.presentation.api.v1.quotes as quotes
 import src.presentation.api.v1.admin as admin
 #from src.presentation.api.middleware import (
@@ -34,7 +35,16 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error("Database connection failed", error=str(e))
         raise
-    
+
+    # Создаем таблицы, если они не существуют
+    try:
+        async with database.engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        logger.info("Database tables created successfully")
+    except Exception as e:
+        logger.error("Failed to create tables", error=str(e))
+        # Не падаем, возможно таблицы уже созданы
+
     # Запускаем фоновые задачи
     if not settings.TESTING:
         miner = QuoteMiner(update_interval=settings.UPDATE_INTERVAL)
