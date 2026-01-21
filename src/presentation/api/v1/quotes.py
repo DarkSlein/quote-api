@@ -59,6 +59,20 @@ class QuoteListResponse(BaseModel):
     total_pages: int
 
 
+@router.get("/random", response_model=list[QuoteResponse])
+async def get_random_quote(
+    category: Optional[str] = Query(None),
+    era: Optional[str] = Query(None),
+    min_rating: int = Query(0, ge=0),
+    limit: int = Query(1, ge=1, le=10),
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
+):
+    """Получить случайную цитату"""
+    use_case = GetRandomQuoteUseCase(uow)
+    quotes = await use_case.execute(category, era, min_rating, limit)
+    return [QuoteResponse.from_domain(q) for q in quotes]
+
+
 @router.get("/{quote_id}", response_model=QuoteResponse)
 async def get_quote(
     quote_id: UUID,
@@ -74,20 +88,6 @@ async def get_quote(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
         )
-
-
-@router.get("/random", response_model=list[QuoteResponse])
-async def get_random_quote(
-    category: Optional[str] = Query(None),
-    era: Optional[str] = Query(None),
-    min_rating: int = Query(0, ge=0),
-    limit: int = Query(1, ge=1, le=10),
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
-):
-    """Получить случайную цитату"""
-    use_case = GetRandomQuoteUseCase(uow)
-    quotes = await use_case.execute(category, era, min_rating, limit)
-    return [QuoteResponse.from_domain(q) for q in quotes]
 
 
 @router.get("/", response_model=QuoteListResponse)

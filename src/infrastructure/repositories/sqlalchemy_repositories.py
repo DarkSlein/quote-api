@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 from typing import Optional, List, Tuple
 from uuid import UUID
 
-from sqlalchemy import select, func, or_, and_, desc, asc
-from sqlalchemy.orm import selectinload, joinedload
+from sqlalchemy import select, func, and_, desc, asc
+from sqlalchemy.orm import joinedload
 
 from src.domain.entities import (
     Quote, Author, Category, Era, QuoteId
