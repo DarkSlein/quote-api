@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from sqlalchemy import text
@@ -12,6 +13,8 @@ from src.infrastructure.database.session import database
 from src.infrastructure.database.models import Base
 import src.presentation.api.v1.quotes as quotes
 import src.presentation.api.v1.admin as admin
+from src.presentation.api.middleware.exception_handling import DebugExceptionMiddleware
+from src.presentation.api.middleware.validation_handler import validation_exception_handler
 #from src.presentation.api.middleware import (
 #    LoggingMiddleware,
 #    ExceptionMiddleware,
@@ -63,12 +66,22 @@ def create_application() -> FastAPI:
     app = FastAPI(
         title=settings.PROJECT_NAME,
         version=settings.VERSION,
+        debug=settings.DEBUG,
         docs_url="/api/docs" if settings.DEBUG else None,
         redoc_url="/api/redoc" if settings.DEBUG else None,
         openapi_url="/api/openapi.json" if settings.DEBUG else None,
         lifespan=lifespan,
     )
+
+    app.add_exception_handler(
+        RequestValidationError,
+        validation_exception_handler
+    )
+
+    if settings.DEBUG:
+        app.add_middleware(DebugExceptionMiddleware, debug=True)
     
+
     # Middleware
     app.add_middleware(
         CORSMiddleware,
