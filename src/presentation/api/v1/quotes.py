@@ -1,11 +1,13 @@
 import traceback
 from typing import Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Query, HTTPException, Response, status
 from pydantic import BaseModel, Field
 
+from domain.exceptions import QuoteNotFoundException
 from src.domain.entities import Quote, QuoteId
 from src.application.use_cases.quotes import (
+    DeleteQuoteUseCase,
     GetQuoteUseCase,
     GetRandomQuoteUseCase,
     SearchQuotesUseCase,
@@ -178,4 +180,31 @@ async def rate_quote(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
+        )
+
+@router.delete("/{quote_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_quote(
+    quote_id: UUID,
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow)
+):
+    """Удалить цитату по ID"""
+    use_case = DeleteQuoteUseCase(uow)
+    try:
+        deleted = await use_case.execute(QuoteId(quote_id))
+        if not deleted:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Quote {quote_id} not found"
+            )
+        # Возвращаем 204 No Content при успешном удалении
+        return Response(status_code=status.HTTP_204_NO_CONTENT)
+    except QuoteNotFoundException as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete quote: {str(e)}"
         )

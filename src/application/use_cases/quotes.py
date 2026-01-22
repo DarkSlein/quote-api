@@ -175,3 +175,21 @@ class UpdateQuotesFromExternalSourceUseCase:
             except Exception as e:
                 await self.uow.rollback()
                 raise
+
+class DeleteQuoteUseCase:
+    def __init__(self, uow: UnitOfWork):
+        self.uow = uow
+
+    async def execute(self, quote_id: QuoteId) -> bool:
+        """Удаляет цитату по ID. Возвращает True если удалено, False если не найдено."""
+        async with self.uow:
+            # Проверяем существование цитаты (опционально, но рекомендуется)
+            existing_quote = await self.uow.quotes.get_by_id(quote_id)
+            if not existing_quote:
+                raise QuoteNotFoundException(f"Quote {quote_id} not found")
+            
+            # Удаляем цитату
+            deleted = await self.uow.quotes.delete(quote_id)
+            if deleted:
+                await self.uow.commit()
+            return deleted
