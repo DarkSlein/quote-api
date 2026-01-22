@@ -38,6 +38,10 @@ class Language:
         if not self._code.islower():
             raise DomainException("Language code must be lowercase")
 
+    def __str__(self) -> str:
+        """Возвращает код языка (например, 'ru', 'en')"""
+        return self._code
+    
     @property
     def code(self) -> str:
         """Публичный геттер для кода языка."""
