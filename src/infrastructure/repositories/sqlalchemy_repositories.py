@@ -157,7 +157,27 @@ class SqlAlchemyQuoteRepository(QuoteRepository):
         self.session.add(model)
 
     async def save_many(self, quotes: List[Quote]) -> int:
-        models = [self._to_model(quote) for quote in quotes]
+        if not quotes:
+            return 0
+        
+        models = []
+        for quote in quotes:
+            # Преобразуем в модель
+            model = self._to_model(quote)
+            
+            # Убедимся, что author_id существует
+            if model.author_id is not None:
+                # Проверяем, существует ли автор в БД
+                stmt = select(func.count(AuthorModel.id)).where(AuthorModel.id == model.author_id)
+                result = await self.session.execute(stmt)
+                author_exists = result.scalar_one() > 0
+                
+                if not author_exists:
+                    # Автор должен был быть сохранен заранее!
+                    raise ValueError(f"Author with ID {model.author_id} does not exist in database")
+            
+            models.append(model)
+        
         self.session.add_all(models)
         return len(models)
 
@@ -266,3 +286,15 @@ class SqlAlchemyAuthorRepository(AuthorRepository):
             updated_at=author.updated_at if hasattr(author, 'updated_at') else author.created_at
         )
         self.session.add(model)
+
+    async def ensure_exists(self, author: Author) -> Author:
+        """Гарантирует, что автор существует в БД, возвращает его (существующего или нового)"""
+        existing = await self.find_by_name(author.name)
+        if existing:
+            return existing
+        
+        # Сохраняем нового автора
+        await self.save(author)
+        # Флашим, чтобы получить ID
+        await self.session.flush()
+        return author

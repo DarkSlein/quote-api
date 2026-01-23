@@ -1,3 +1,4 @@
+import asyncio
 import aiohttp
 from typing import List, Optional
 from asyncio_throttle import Throttler
@@ -53,45 +54,56 @@ class ExternalQuoteService:
 
     async def _fetch_from_forismatic(self) -> List[Quote]:
         """Получение цитат с Forismatic API"""
-        quotes = []
+        import re
         
-        # Генерируем разные ключи для получения разных цитат
-        for key in range(1, 4):  # Пробуем 3 разных ключа
+        quotes = []
+        seen = set()
+        
+        for attempt in range(3):  # 3 попытки
             async with self.throttler:
                 try:
-                    # Forismatic API имеет ограничения, используем с осторожностью
-                    url = "https://api.forismatic.com/api/1.0/"
+                    url = "http://api.forismatic.com/api/1.0/"
                     params = {
                         "method": "getQuote",
                         "format": "json",
                         "lang": "ru",
-                        "key": key  # Разные ключи для разных цитат
+                        "key": random.randint(1, 999999) # hash(f"attempt{attempt}") % 1000000
                     }
                     
-                    async with self.session.get(url, params=params, timeout=10) as response:
+                    async with self.session.get(url, params=params, timeout=5) as response:
                         if response.status == 200:
-                            try:
-                                data = await response.json()
-                                quote_text = data.get("quoteText", "").strip()
-                                author_name = data.get("quoteAuthor", "").strip() or "Неизвестный автор"
-                                
-                                # Проверяем, что цитата не пустая
-                                if quote_text and len(quote_text) > 10:
-                                    # Создаем автора
-                                    author = Author(name=author_name)
-                                    
-                                    # Создаем цитату
-                                    quote = Quote(
-                                        text=QuoteText(quote_text),
-                                        author=author,
-                                        language=Language("ru"),
-                                        source="forismatic.com"
-                                    )
-                                    quotes.append(quote)
-                            except Exception:
+                            data = await response.json()
+                            quote_text = data.get("quoteText", "").strip()
+                            author_name = data.get("quoteAuthor", "").strip()
+                            
+                            # Очищаем текст
+                            quote_text = re.sub(r'\s+', ' ', quote_text).strip()
+                            
+                            if not quote_text:
                                 continue
+                            
+                            if not author_name or author_name == "":
+                                author_name = "Неизвестный автор"
+                            
+                            # Проверяем на дубликаты в рамках одной сессии
+                            quote_key = f"{quote_text[:100]}|{author_name}"
+                            if quote_key in seen:
+                                continue
+                            seen.add(quote_key)
+                            
+                            # Создаем автора с корректным временем
+                            author = Author(name=author_name)
+                            
+                            # Создаем цитату
+                            quote = Quote(
+                                text=QuoteText(quote_text),
+                                author=author,
+                                language=Language("ru"),
+                                source="forismatic.com"
+                            )
+                            quotes.append(quote)
+                            
                 except Exception:
-                    # Если ошибка, пробуем следующий ключ
                     continue
         
         return quotes

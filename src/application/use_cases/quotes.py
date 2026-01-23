@@ -148,26 +148,46 @@ class UpdateQuotesFromExternalSourceUseCase:
         async with self.uow:
             try:
                 external_quotes = await self.external_service.fetch_quotes(source)
+                quotes_to_save = []
                 
                 for external_quote in external_quotes:
                     try:
-                        quote_text = external_quote.text_str
+                        # Получаем текст цитаты
+                        quote_text = str(external_quote.text) if hasattr(external_quote.text, '__str__') else external_quote.text
                         author_name = external_quote.author.name if external_quote.author else None
-
-                        # Проверяем, существует ли уже
+                        
+                        # Проверяем, существует ли уже такая цитата
                         exists = await self.uow.quotes.exists(quote_text, author_name)
                         
-                        if not exists:
-                            await self.uow.quotes.save(external_quote)
-                            added += 1
-                        else:
+                        if exists:
                             updated += 1
+                            continue
+                        
+                        # Сохраняем автора перед добавлением цитаты
+                        if external_quote.author:
+                            # Ищем существующего автора
+                            existing_author = await self.uow.authors.find_by_name(external_quote.author.name)
                             
+                            if existing_author:
+                                # Используем существующего автора
+                                external_quote.author = existing_author
+                            else:
+                                # Сохраняем нового автора
+                                await self.uow.authors.save(external_quote.author)
+                                # Флашим, чтобы получить ID автора
+                                await self.uow.session.flush()
+                        
+                        # Добавляем цитату в список для сохранения
+                        quotes_to_save.append(external_quote)
+                        
                     except Exception as e:
-                        logger.error("Failed to save quote", quote=external_quote, error=str(e))
                         errors += 1
-                        # Логируем ошибку, но продолжаем обработку
                         continue
+                
+                # Сохраняем цитаты ПОСЛЕ сохранения всех авторов
+                if quotes_to_save:
+                    saved_count = await self.uow.quotes.save_many(quotes_to_save)
+                    added += saved_count
                 
                 await self.uow.commit()
                 return UpdateResult(
