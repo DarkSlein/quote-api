@@ -4,15 +4,15 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query, HTTPException, Response, status
 from pydantic import BaseModel, Field
 
-from domain.exceptions import QuoteNotFoundException
+from src.domain.exceptions import QuoteNotFoundException
 from src.domain.entities import Quote, QuoteId
 from src.application.use_cases.quotes import (
-    DeleteQuoteUseCase,
     GetQuoteUseCase,
     GetRandomQuoteUseCase,
     SearchQuotesUseCase,
     CreateQuoteUseCase,
     RateQuoteUseCase
+    DeleteQuoteUseCase,
 )
 from src.infrastructure.unit_of_work import SqlAlchemyUnitOfWork
 from src.presentation.api.dependencies import get_uow
