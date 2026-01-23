@@ -41,3 +41,6 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
 
     async def rollback(self):
         await self.session.rollback()
+
+    async def flush(self):
+        await self.session.flush()

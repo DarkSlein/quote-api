@@ -262,6 +262,7 @@ class SqlAlchemyAuthorRepository(AuthorRepository):
             birth_year=author.birth_year,
             death_year=author.death_year,
             bio=author.bio,
-            created_at=author.created_at
+            created_at=author.created_at,
+            updated_at=author.updated_at if hasattr(author, 'updated_at') else author.created_at
         )
         self.session.add(model)

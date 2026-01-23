@@ -25,7 +25,11 @@ class Settings(BaseSettings):
     # External APIs
     FORISMATIC_API_URL: str = "http://api.forismatic.com/api/1.0/"
     WIKIQUOTE_API_URL: str = "https://ru.wikiquote.org/w/api.php"
-    
+
+    # Включить/выключить источники обновления
+    UPDATE_WIKIQUOTE: bool = os.getenv("UPDATE_WIKIQUOTE", "False").lower() == "true"
+    UPDATE_FORISMATIC: bool = os.getenv("UPDATE_FORISMATIC", "True").lower() == "true"
+
     # Background tasks
     UPDATE_INTERVAL: int = int(os.getenv("UPDATE_INTERVAL", "3600"))  # seconds
     MAX_WORKERS: int = int(os.getenv("MAX_WORKERS", "5"))

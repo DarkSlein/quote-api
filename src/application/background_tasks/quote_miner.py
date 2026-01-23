@@ -5,6 +5,7 @@ from src.domain.value_objects import QuoteSource
 from src.application.use_cases.quotes import UpdateQuotesFromExternalSourceUseCase
 from src.infrastructure.unit_of_work import SqlAlchemyUnitOfWork
 from src.application.services.external_quote_service import ExternalQuoteService
+from src.shared.config import settings
 
 logger = structlog.get_logger()
 
@@ -36,7 +37,16 @@ class QuoteMiner:
 
     async def _update_all_sources(self):
         """Обновление из всех источников"""
-        sources = [QuoteSource.WIKIQUOTE, QuoteSource.FORISMATIC]
+        sources = []
+        
+        if settings.UPDATE_WIKIQUOTE:
+            sources.append(QuoteSource.WIKIQUOTE)
+        if settings.UPDATE_FORISMATIC:
+            sources.append(QuoteSource.FORISMATIC)
+        
+        if not sources:
+            logger.info("No update sources enabled")
+            return
         
         async with SqlAlchemyUnitOfWork() as uow:
             async with ExternalQuoteService() as external_service:
