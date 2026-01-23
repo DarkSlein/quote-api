@@ -151,11 +151,11 @@ class UpdateQuotesFromExternalSourceUseCase:
                 
                 for external_quote in external_quotes:
                     try:
+                        quote_text = external_quote.text_str
+                        author_name = external_quote.author.name if external_quote.author else None
+
                         # Проверяем, существует ли уже
-                        exists = await self.uow.quotes.exists(
-                            external_quote.text,
-                            external_quote.author.name if external_quote.author else None
-                        )
+                        exists = await self.uow.quotes.exists(quote_text, author_name)
                         
                         if not exists:
                             await self.uow.quotes.save(external_quote)

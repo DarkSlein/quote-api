@@ -97,3 +97,13 @@ class Quote:
     def update_text(self, new_text: QuoteText) -> None:
         self.text = new_text
         self.updated_at = datetime.now(timezone.utc)
+
+    @property
+    def text_str(self) -> str:
+        """Возвращает текст цитаты как строку"""
+        return str(self.text)
+    
+    @property
+    def author_name(self) -> Optional[str]:
+        """Возвращает имя автора как строку"""
+        return self.author.name if self.author else None
