@@ -11,8 +11,8 @@ from src.application.use_cases.quotes import (
     GetRandomQuoteUseCase,
     SearchQuotesUseCase,
     CreateQuoteUseCase,
-    RateQuoteUseCase
-    DeleteQuoteUseCase,
+    RateQuoteUseCase,
+    DeleteQuoteUseCase
 )
 from src.infrastructure.unit_of_work import SqlAlchemyUnitOfWork
 from src.presentation.api.dependencies import get_uow
