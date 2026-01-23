@@ -1,5 +1,7 @@
 from typing import Optional, List, Tuple
 
+import structlog
+
 from src.application.services.external_quote_service import ExternalQuoteService
 from src.domain.entities import Quote, Author, QuoteId
 from src.domain.repositories import UnitOfWork
@@ -9,6 +11,8 @@ from src.domain.exceptions import (
     QuoteAlreadyExistsException
 )
 
+
+logger = structlog.get_logger()
 
 class GetQuoteUseCase:
     def __init__(self, uow: UnitOfWork):
@@ -160,6 +164,7 @@ class UpdateQuotesFromExternalSourceUseCase:
                             updated += 1
                             
                     except Exception as e:
+                        logger.error("Failed to save quote", quote=external_quote, error=str(e))
                         errors += 1
                         # Логируем ошибку, но продолжаем обработку
                         continue
