@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 import traceback
+from urllib.parse import unquote_plus
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -17,10 +18,40 @@ import src.presentation.api.v1.quotes as quotes
 import src.presentation.api.v1.admin as admin
 from src.presentation.api.middleware.exception_handling import DebugExceptionMiddleware
 from src.presentation.api.middleware.validation_handler import validation_exception_handler
-from src.presentation.api.middleware.url_decode import URLDecodeMiddleware
 
 logger = structlog.get_logger()
 
+
+def patch_fastapi_url_decoding():
+    """Патчим FastAPI для автоматического декодирования плюсов в query параметрах"""
+    from fastapi.datastructures import QueryParams
+    
+    original_init = QueryParams.__init__
+    
+    def patched_init(self, *args, **kwargs):
+        original_init(self, *args, **kwargs)
+        
+        # Декодируем все значения
+        decoded_items = []
+        for key, value in self._dict.items():
+            if isinstance(value, str):
+                decoded_value = unquote_plus(value.replace('+', ' '))
+                decoded_items.append((key, decoded_value))
+            elif isinstance(value, list):
+                decoded_list = [
+                    unquote_plus(v.replace('+', ' ')) if isinstance(v, str) else v
+                    for v in value
+                ]
+                decoded_items.append((key, decoded_list))
+            else:
+                decoded_items.append((key, value))
+        
+        # Обновляем внутренний словарь
+        self._dict = dict(decoded_items)
+    
+    QueryParams.__init__ = patched_init
+
+patch_fastapi_url_decoding()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -81,7 +112,6 @@ def create_application() -> FastAPI:
     app.add_middleware(DebugExceptionMiddleware, debug=settings.DEBUG)
     
     # Middleware
-    app.add_middleware(URLDecodeMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.BACKEND_CORS_ORIGINS,
