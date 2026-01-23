@@ -17,6 +17,7 @@ import src.presentation.api.v1.quotes as quotes
 import src.presentation.api.v1.admin as admin
 from src.presentation.api.middleware.exception_handling import DebugExceptionMiddleware
 from src.presentation.api.middleware.validation_handler import validation_exception_handler
+from src.presentation.api.middleware.url_decode import URLDecodeMiddleware
 
 logger = structlog.get_logger()
 
@@ -80,6 +81,7 @@ def create_application() -> FastAPI:
     app.add_middleware(DebugExceptionMiddleware, debug=settings.DEBUG)
     
     # Middleware
+    app.add_middleware(URLDecodeMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.BACKEND_CORS_ORIGINS,

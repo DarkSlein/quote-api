@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from typing import Optional, List, Tuple
 from uuid import UUID
 
-from sqlalchemy import select, func, and_, desc, asc
+from sqlalchemy import or_, select, func, and_, desc, asc
 from sqlalchemy.orm import joinedload
 
 from src.domain.entities import (
@@ -106,8 +106,8 @@ class SqlAlchemyQuoteRepository(QuoteRepository):
         sort_by: str = "rating",
         sort_desc: bool = True
     ) -> Tuple[List[Quote], int]:
-        # Подсчет общего количества
-        count_stmt = select(func.count(QuoteModel.id))
+        """Поиск цитат с фильтрацией"""
+        # Начинаем с базового запроса
         stmt = (
             select(QuoteModel)
             .options(joinedload(QuoteModel.author))
@@ -115,24 +115,40 @@ class SqlAlchemyQuoteRepository(QuoteRepository):
             .offset(offset)
         )
         
+        # Создаем запрос для подсчета общего количества
+        count_stmt = select(func.count(QuoteModel.id))
+        
         # Применяем фильтры
         conditions = []
         
         if query:
-            conditions.append(QuoteModel.text.ilike(f"%{query}%"))
+            query_condition = or_(
+                QuoteModel.text.ilike(f"%{query}%"),
+                AuthorModel.name.ilike(f"%{query}%")
+            )
+            conditions.append(query_condition)
+            # Для подсчета тоже нужно учитывать
+            count_stmt = count_stmt.join(AuthorModel, isouter=True)
+        
         if author:
+            stmt = stmt.join(AuthorModel)
+            count_stmt = count_stmt.join(AuthorModel)
             conditions.append(AuthorModel.name.ilike(f"%{author}%"))
+        
         if category:
-            stmt = stmt.join(CategoryModel)
-            count_stmt = count_stmt.join(CategoryModel)
+            stmt = stmt.join(CategoryModel, isouter=True)
+            count_stmt = count_stmt.join(CategoryModel, isouter=True)
             conditions.append(CategoryModel.name == category)
+        
         if era:
-            stmt = stmt.join(EraModel)
-            count_stmt = count_stmt.join(EraModel)
+            stmt = stmt.join(EraModel, isouter=True)
+            count_stmt = count_stmt.join(EraModel, isouter=True)
             conditions.append(EraModel.name == era)
+        
         if language:
             conditions.append(QuoteModel.language == str(language))
         
+        # Применяем все условия
         if conditions:
             stmt = stmt.where(and_(*conditions))
             count_stmt = count_stmt.where(and_(*conditions))
@@ -148,7 +164,7 @@ class SqlAlchemyQuoteRepository(QuoteRepository):
         total = total_result.scalar_one()
         
         result = await self.session.execute(stmt)
-        models = result.scalars().all()
+        models = result.unique().scalars().all()
         
         return [self._to_domain(model) for model in models], total
 
