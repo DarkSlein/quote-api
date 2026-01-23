@@ -19,12 +19,18 @@ class URLDecodeMiddleware(BaseHTTPMiddleware):
             if decoded_query != query_string:
                 # Создаем новый URL с декодированными параметрами
                 url = request.url.replace(query=decoded_query)
-                scope = dict(request.scope)
-                scope["raw_path"] = url.raw_path
-                scope["path"] = url.path
-                scope["query_string"] = url.query.encode()
                 
-                # Создаем новый Request с декодированными параметрами
+                # Обновляем scope без использования raw_path
+                scope = dict(request.scope)
+                # Обновляем только необходимые поля
+                if "query_string" in scope:
+                    scope["query_string"] = url.query.encode()
+                
+                # Обновляем path, если он изменился (редкий случай)
+                if scope.get("path") != url.path:
+                    scope["path"] = url.path
+                
+                # Создаем новый Request
                 request = Request(scope, request.receive)
         
         return await call_next(request)
